@@ -72,12 +72,12 @@ const testState = vi.hoisted(() => ({
       utxos: [{ confirmations: 6 }],
     } as MockJar,
   ],
-  jmInfo: {
-    version: undefined,
-    queryResult: {
-      isLoading: false,
-      isError: false,
-    },
+  journey: {
+    state: 'ready' as string,
+    hasFunds: true,
+    hasUnconfirmedUtxos: false,
+    isServiceOnline: true,
+    isLoading: false,
   },
 }))
 
@@ -107,8 +107,12 @@ vi.mock('@/context/JamWalletInfoContext', () => ({
   }),
 }))
 
-vi.mock('@/hooks/useQueryJmInfo', () => ({
-  useQueryJmInfo: () => testState.jmInfo,
+vi.mock('@/hooks/useWalletJourneyState', () => ({
+  useWalletJourneyState: () => testState.journey,
+}))
+
+vi.mock('@/components/ui/jam/JourneyCard', () => ({
+  JourneyCard: () => null,
 }))
 
 vi.mock('./ui/jam/Balance', () => ({
@@ -144,12 +148,12 @@ const resetMocks = () => {
   }
   testState.walletBalanceSummary = createWalletBalanceSummary(100_000)
   testState.jars = [createJar([6])]
-  testState.jmInfo = {
-    version: undefined,
-    queryResult: {
-      isLoading: false,
-      isError: false,
-    },
+  testState.journey = {
+    state: 'ready',
+    hasFunds: true,
+    hasUnconfirmedUtxos: false,
+    isServiceOnline: true,
+    isLoading: false,
   }
 }
 
@@ -169,10 +173,8 @@ describe('<MainWalletPage /> journey state', () => {
   })
 
   it('should set loading when wallet data is loading', () => {
-    testState.walletInfo = {
-      ...testState.walletInfo,
-      isLoading: true,
-    }
+    testState.journey = { ...testState.journey, state: 'loading', isLoading: true }
+    testState.walletInfo = { ...testState.walletInfo, isLoading: true }
 
     const { container } = renderMainWalletPage()
 
@@ -180,10 +182,8 @@ describe('<MainWalletPage /> journey state', () => {
   })
 
   it('should set no-wallet when wallet name is unavailable', () => {
-    testState.walletInfo = {
-      ...testState.walletInfo,
-      walletName: null,
-    }
+    testState.journey = { ...testState.journey, state: 'no-wallet' }
+    testState.walletInfo = { ...testState.walletInfo, walletName: null }
 
     const { container } = renderMainWalletPage()
 
@@ -191,13 +191,7 @@ describe('<MainWalletPage /> journey state', () => {
   })
 
   it('should set service-offline when JoinMarket service query fails', () => {
-    testState.jmInfo = {
-      version: undefined,
-      queryResult: {
-        isLoading: false,
-        isError: true,
-      },
-    }
+    testState.journey = { ...testState.journey, state: 'service-offline', isServiceOnline: false }
 
     const { container } = renderMainWalletPage()
 
@@ -205,17 +199,8 @@ describe('<MainWalletPage /> journey state', () => {
   })
 
   it('should prioritize service-offline over no-wallet when both are true', () => {
-    testState.walletInfo = {
-      ...testState.walletInfo,
-      walletName: null,
-    }
-    testState.jmInfo = {
-      version: undefined,
-      queryResult: {
-        isLoading: false,
-        isError: true,
-      },
-    }
+    testState.journey = { ...testState.journey, state: 'service-offline', isServiceOnline: false }
+    testState.walletInfo = { ...testState.walletInfo, walletName: null }
 
     const { container } = renderMainWalletPage()
 
@@ -223,10 +208,8 @@ describe('<MainWalletPage /> journey state', () => {
   })
 
   it('should set action-required when wallet query has an error', () => {
-    testState.walletInfo = {
-      ...testState.walletInfo,
-      error: new Error('wallet load failed'),
-    }
+    testState.journey = { ...testState.journey, state: 'action-required' }
+    testState.walletInfo = { ...testState.walletInfo, error: new Error('wallet load failed') }
 
     const { container } = renderMainWalletPage()
 
@@ -234,6 +217,7 @@ describe('<MainWalletPage /> journey state', () => {
   })
 
   it('should set empty-wallet when balance is zero', () => {
+    testState.journey = { ...testState.journey, state: 'empty-wallet', hasFunds: false }
     testState.walletBalanceSummary = createWalletBalanceSummary(0)
     testState.jars = [createJar([6])]
 
@@ -243,6 +227,7 @@ describe('<MainWalletPage /> journey state', () => {
   })
 
   it('should set awaiting-confirmation when wallet is funded but all funds are below confirmation threshold', () => {
+    testState.journey = { ...testState.journey, state: 'awaiting-confirmation', hasUnconfirmedUtxos: true }
     testState.walletBalanceSummary = {
       calculatedTotalBalanceInSats: 100_000,
       calculatedAvailableBalanceInSats: 0,

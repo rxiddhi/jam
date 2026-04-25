@@ -59,7 +59,6 @@ export function LayoutInner({ onLogout, onLockWallet, children }: LayoutInnerPro
   const isHomeRoute = location.pathname === routes.home
   const hasBlockingOverlayOpen = cheatsheet.open || isOrderbookOverlayOpen || isLogsOverlayOpen
 
-  // Adds a keyboard shortcut to toggle the logs overlay.
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'l' && (event.metaKey || event.ctrlKey)) {
@@ -88,15 +87,17 @@ export function LayoutInner({ onLogout, onLockWallet, children }: LayoutInnerPro
         sessionInfo={jmSession}
         sidebarInfo={sidebarContext}
       />
-      <main className="flex-1">{children}</main>
-      <AppFooter
-        websocketInfo={websocket}
-        jamVersion={APP_DISPLAY_VERSION}
-        joinmarketVersion={joinmarketVersion}
-        onClickCheatsheet={() => cheatsheet.onOpenChange(true)}
-        onClickOrderbook={() => setIsOrderbookOverlayOpen(true)}
-        onClickLogs={isFeatureEnabled('logs') ? () => setIsLogsOverlayOpen(true) : undefined}
-      />
+      <main className="flex-1 pb-4">{children}</main>
+      <div className="sticky bottom-0 z-40 w-full border-t border-white/5 bg-[#181b20]/80 backdrop-blur-md">
+        <AppFooter
+          websocketInfo={websocket}
+          jamVersion={APP_DISPLAY_VERSION}
+          joinmarketVersion={joinmarketVersion}
+          onClickCheatsheet={() => cheatsheet.onOpenChange(true)}
+          onClickOrderbook={() => setIsOrderbookOverlayOpen(true)}
+          onClickLogs={isFeatureEnabled('logs') ? () => setIsLogsOverlayOpen(true) : undefined}
+        />
+      </div>
 
       <Cheatsheet open={cheatsheet.open} onOpenChange={cheatsheet.onOpenChange} />
       <OrderbookOverlay open={isOrderbookOverlayOpen} onOpenChange={setIsOrderbookOverlayOpen} />

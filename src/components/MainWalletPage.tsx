@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { ClickableJar } from '@/components/ui/jam/ClickableJar'
+import { JourneyCard } from '@/components/ui/jam/JourneyCard'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { routes } from '@/constants/routes'
 import { useJamDisplayContext } from '@/context/JamDisplayContext'
@@ -14,8 +15,7 @@ import {
   useWalletBalanceSummary,
   type Jar as JarObject,
 } from '@/context/JamWalletInfoContext'
-import { useQueryJmInfo } from '@/hooks/useQueryJmInfo'
-import { deriveWalletJourneyState } from '@/lib/walletJourneyState'
+import { useWalletJourneyState } from '@/hooks/useWalletJourneyState'
 import type { WalletFileName } from '@/lib/utils'
 import { cn, shortenStringMiddle, walletDisplayName } from '@/lib/utils'
 import { Balance } from './ui/jam/Balance'
@@ -33,25 +33,14 @@ export default function MainWalletPage({ walletFileName }: MainWalletPageProps) 
   const [isWalletJarsDetailsOpen, setIsWalletJarsDetailsOpen] = useState(false)
 
   const { toggleDisplayMode } = useJamDisplayContext()
-  const { walletName: contextWalletName, isLoading, isFetching, error, refetch: refetchWalletData } =
+  const { isLoading, isFetching, error, refetch: refetchWalletData } =
     useJamWalletInfoContext()
   const { walletBalanceSummary } = useWalletBalanceSummary()
   const { jars } = useJars()
-  const { queryResult: jmInfoQueryResult } = useQueryJmInfo()
+  const journey = useWalletJourneyState()
 
   const displayWalletName = walletDisplayName(walletFileName)
   const walletNameTitle = shortenStringMiddle(displayWalletName, 32)
-  const utxoConfirmations = jars.flatMap((jar) => jar.utxos.map((utxo) => utxo.confirmations))
-  const journeyState = deriveWalletJourneyState({
-    isWalletLoading: isLoading,
-    isServiceLoading: jmInfoQueryResult.isLoading,
-    walletName: contextWalletName,
-    hasServiceError: jmInfoQueryResult.isError,
-    hasWalletError: error !== null,
-    walletTotalBalanceInSats: walletBalanceSummary.calculatedTotalBalanceInSats,
-    walletAvailableBalanceInSats: walletBalanceSummary.calculatedAvailableBalanceInSats,
-    utxoConfirmations,
-  })
 
   const onJarClicked = (jar: JarObject) => {
     setSelectedJar(jar)
@@ -71,7 +60,7 @@ export default function MainWalletPage({ walletFileName }: MainWalletPageProps) 
       />
       <div
         className="flex flex-col items-center justify-center gap-8 px-4 py-12"
-        data-journey-state={journeyState}
+        data-journey-state={journey.state}
       >
         <div className="flex w-full max-w-xl flex-col items-center justify-center gap-2">
           <p className="text-muted-foreground hover:text-foreground text-xl select-all" title={displayWalletName}>
@@ -105,6 +94,8 @@ export default function MainWalletPage({ walletFileName }: MainWalletPageProps) 
             </Button>
           </div>
         </div>
+
+        <JourneyCard journey={journey} onRetry={() => void refetchWalletData()} />
 
         {error && (
           <Alert variant="destructive" className="mb-4 max-w-xl">

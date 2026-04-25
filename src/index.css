@@ -175,3 +175,17 @@ html body[data-scroll-locked] {
 .animate-shake {
   animation: shake 0.4s ease-in-out;
 }
+
+@keyframes journey-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-journey-pulse {
+  animation: journey-pulse 2.5s ease-in-out infinite;
+}

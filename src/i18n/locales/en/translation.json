@@ -230,7 +230,39 @@
     "jars_title": "Wallet distribution",
     "jars_title_popover": "Jars are used to segregate your sats into multiple buckets that are disconnected from each other, which aids privacy.",
     "account_heading_external_addresses": "External addresses for deposits",
-    "account_heading_internal_addresses": "Internal Addresses"
+    "account_heading_internal_addresses": "Internal Addresses",
+    "journey_card": {
+      "dismiss_label": "Dismiss guidance",
+      "no_wallet": {
+        "title": "Create a wallet",
+        "description": "Set up your first wallet to begin your privacy journey.",
+        "cta": "Create Wallet"
+      },
+      "service_offline": {
+        "title": "Service unavailable",
+        "description": "The JoinMarket backend is not reachable. Check your connection or try again.",
+        "cta": "Retry"
+      },
+      "empty_wallet": {
+        "title": "Fund your wallet",
+        "description": "Deposit sats to start using collaborative transactions for privacy.",
+        "cta": "Receive Sats"
+      },
+      "awaiting_confirmation": {
+        "title": "Waiting for confirmations",
+        "description": "Your deposit needs a few more confirmations before it can be used in collaborative transactions."
+      },
+      "action_required": {
+        "title": "Action required",
+        "description": "Something needs your attention before you can proceed.",
+        "cta": "Review"
+      },
+      "ready": {
+        "title": "Ready to go!",
+        "description": "Send a collaborative transaction to improve your financial privacy.",
+        "cta": "Send Collaboratively"
+      }
+    }
   },
   "settings": {
     "section_title_display": "Display",
@@ -715,6 +747,9 @@
   },
   "cheatsheet": {
     "title": "The Cheatsheet",
+    "button_mark_completed": "Mark as completed",
+    "button_mark_incomplete": "Mark as incomplete",
+    "button_reset_progress": "Reset Progress",
     "description": "Follow the steps below to increase your financial privacy. It is advisable to switch from <2>earning as a maker</2> to <6>sending as a taker</6> back and forth. <10>Learn more.</10>",
     "receive": {
       "title": "<0>Fund</0> your wallet.",
